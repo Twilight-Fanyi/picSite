@@ -10,20 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Git Identity
+      - name: Setup Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Create Daily Directory
         run: |
-          TODAY=$(date +'%Y/%m/%d')
+          TODAY=$(date -u +"%Y/%m/%d" -d "8 hour")
           DIR="contents/$TODAY"
           mkdir -p "$DIR"
           echo "" > "$DIR/.gitkeep"
           git add "$DIR/.gitkeep"
           git commit -m "chore: create daily directory for $TODAY" || echo "No changes to commit"
-          git push
+
+      - name: Push changes
+        env:
+          TOKEN: "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"
+        run: |
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/Twilight-Fanyi/picSite.git
+          git push origin HEAD:main
