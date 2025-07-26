@@ -2,24 +2,27 @@ name: Daily Directory Creator
 
 on:
   schedule:
-    - cron: "0 16 * * *"
-  workflow_dispatch:     # 允许手动触发
+    - cron: "0 16 * * *"  # UTC 16点 = 北京时间 0点
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
   create-directory:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # 禁用默认token，防止推送权限冲突
 
-      - name: Setup Git
+      - name: Setup Git Identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Create Daily Directory
         run: |
-          TODAY=$(date -u +"%Y/%m/%d" -d "8 hour")
+          TODAY=$(date -u +"%Y/%m/%d" -d "8 hour")  # 北京时间
           DIR="contents/$TODAY"
           mkdir -p "$DIR"
           echo "" > "$DIR/.gitkeep"
@@ -28,7 +31,7 @@ jobs:
 
       - name: Push changes
         env:
-          TOKEN: "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"
+          TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/Twilight-Fanyi/picSite.git
           git push origin HEAD:main
